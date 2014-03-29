@@ -190,7 +190,7 @@ Membership membership_test(GridPoint gp, TriangleInfo ti) {
 }
 
 void print_grid(Grid g) {
-	iterate_grid_rows(g, printf("%d,",g.grid_memory[cell_index]),printf("\n"));
+	iterate_grid_rows(g, printf("%d",g.grid_memory[cell_index]),printf("\n"));
 }
 
 int main(int argc, char **argv) {
