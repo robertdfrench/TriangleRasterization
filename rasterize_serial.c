@@ -22,8 +22,8 @@ typedef enum {O_ABOVE, O_BELOW} Orientation;
 typedef struct triangle_info {
 	Triangle t;
 	Point centroid;
-	Line[3] lines;
-	Orientation[3] orientations;
+	Line lines[3];
+	Orientation orientations[3];
 } TriangleInfo;
 
 Point create_point(float x, float y) {
@@ -71,7 +71,7 @@ TriangleInfo calculate_triangle_info(Triangle t) {
 	ti.orientations[0] = calculate_line_orientation(ti.lines[0], ti.centroid);
 	ti.orientations[1] = calculate_line_orientation(ti.lines[1], ti.centroid);
 	ti.orientations[2] = calculate_line_orientation(ti.lines[2], ti.centroid);
-	return TriangleInfo;
+	return ti;
 }
 
 typedef struct grid_point {
@@ -103,15 +103,17 @@ Grid allocate_grid(int dimX, int dimY) {
 		}\
 	}\
 } while(0);
-#define iterate_grid_rows(g,cell_expr,row_expr)\
-	for(int i = 0; i < g.dimX; i++) {\
-		for(int j = 0; j < g.dimY; j++) {\
-			int cell_index = i * g.dimX + j;\
+#define iterate_grid_rows(g,cell_expr,row_expr) do {\
+	GridPoint igp;\
+	for(igp.i = 0; igp.i < g.dimX; igp.i++) {\
+		for(igp.j = 0; igp.j < g.dimY; igp.j++) {\
+			int cell_index = calculate_cell_index(g,igp);\
 			cell_expr;\
 		}\
-		int row_index = i;\
+		int row_index = igp.i;\
 		row_expr;\
-	}
+	}\
+} while(0);
 
 void initialize_grid(Grid g, int iv) {
 	iterate_grid(g, g.grid_memory[cell_index] = iv);
