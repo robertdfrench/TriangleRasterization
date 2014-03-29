@@ -178,6 +178,7 @@ BoundingBoxInfo calculate_bounding_box_info(BoundingBox bb) {
 
 typedef enum {T_INTERIOR, T_EXTERIOR} Membership;
 
+int num_members = 0;
 Membership membership_test(GridPoint gp, TriangleInfo ti) {
 	Point p;
 	p.x = gp.i;
@@ -186,7 +187,10 @@ Membership membership_test(GridPoint gp, TriangleInfo ti) {
 		calculate_line_orientation(ti.lines[0],p) == ti.orientations[0] &&
 		calculate_line_orientation(ti.lines[1],p) == ti.orientations[1] &&
 		calculate_line_orientation(ti.lines[2],p) == ti.orientations[2] 
-	  ) return T_INTERIOR;
+	  ) {
+		num_members++;
+		return T_INTERIOR;
+	}
 	return T_EXTERIOR;
 }
 
@@ -217,10 +221,11 @@ int main(int argc, char **argv) {
 
 	TriangleInfo ti = calculate_triangle_info(t);
 
-	Grid g = allocate_grid(10,12);
+	Grid g = allocate_grid(20,120);
 	initialize_grid(g, 0);
 
 	iterate_grid(g, g.grid_memory[cell_index] = membership_test(igp,ti));
 	print_grid(g);
+	printf("Total number of members: %d\n",num_members);
 	return 0;
 }
