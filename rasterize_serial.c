@@ -103,15 +103,16 @@ Grid allocate_grid(int dimX, int dimY) {
 		}\
 	}\
 } while(0);
-#define iterate_grid_rows(g,cell_expr,row_expr) do {\
+#define iterate_grid_rows(g,cell_expr,before_row_expr,after_row_expr) do {\
 	GridPoint igp;\
 	for(igp.i = 0; igp.i < g.dimX; igp.i++) {\
+		int row_index = igp.i;\
+		before_row_expr;\
 		for(igp.j = 0; igp.j < g.dimY; igp.j++) {\
 			int cell_index = calculate_cell_index(g,igp);\
 			cell_expr;\
 		}\
-		int row_index = igp.i;\
-		row_expr;\
+		after_row_expr;\
 	}\
 } while(0);
 
@@ -190,7 +191,11 @@ Membership membership_test(GridPoint gp, TriangleInfo ti) {
 }
 
 void print_grid(Grid g) {
-	iterate_grid_rows(g, printf("%s",(g.grid_memory[cell_index] == 0) ? "*" : " "),printf("\n"));
+	iterate_grid_rows(g, 
+		printf("%s",(g.grid_memory[cell_index] == 0) ? "*" : " "),
+		printf("|"),
+		printf("|\n")
+	);
 }
 
 int main(int argc, char **argv) {
