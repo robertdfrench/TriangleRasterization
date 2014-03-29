@@ -93,7 +93,7 @@ Grid allocate_grid(int dimX, int dimY) {
 	return g;
 }
 
-#define calculate_cell_index(grid, grid_point) grid_point.i * grid.dimX + grid_point.j;
+#define calculate_cell_index(grid, grid_point) grid_point.j * grid.dimX + grid_point.i;
 #define iterate_grid(g,expr) do {\
 	GridPoint igp;\
 	for(igp.i = 0; igp.i < g.dimX; igp.i++) {\
@@ -105,10 +105,10 @@ Grid allocate_grid(int dimX, int dimY) {
 } while(0);
 #define iterate_grid_rows(g,cell_expr,before_row_expr,after_row_expr) do {\
 	GridPoint igp;\
-	for(igp.i = 0; igp.i < g.dimX; igp.i++) {\
-		int row_index = igp.i;\
+	for(igp.j = 0; igp.j < g.dimY; igp.j++) {\
+		int row_index = igp.j;\
 		before_row_expr;\
-		for(igp.j = 0; igp.j < g.dimY; igp.j++) {\
+		for(igp.i = 0; igp.i < g.dimX; igp.i++) {\
 			int cell_index = calculate_cell_index(g,igp);\
 			cell_expr;\
 		}\
@@ -197,7 +197,7 @@ Membership membership_test(GridPoint gp, TriangleInfo ti) {
 void print_grid_header(Grid g) {
 	printf("+");
 	int bi;
-	for(bi = 0; bi < g.dimY; bi++) printf("-");
+	for(bi = 0; bi < g.dimX; bi++) printf("-");
 	printf("+\n");
 }
 
@@ -221,7 +221,7 @@ int main(int argc, char **argv) {
 
 	TriangleInfo ti = calculate_triangle_info(t);
 
-	Grid g = allocate_grid(20,120);
+	Grid g = allocate_grid(100,20);
 	initialize_grid(g, 0);
 
 	iterate_grid(g, g.grid_memory[cell_index] = membership_test(igp,ti));
