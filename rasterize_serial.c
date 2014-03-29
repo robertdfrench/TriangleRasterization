@@ -214,14 +214,14 @@ void print_grid(Grid g) {
 int main(int argc, char **argv) {
 	
 	Point a = create_point(1.02,2.11);
-	Point b = create_point(4.28,8.79);
-	Point c = create_point(7.63,3.99);
+	Point b = create_point(64.28,28.79);
+	Point c = create_point(51.63,38.99);
 
 	Triangle t = create_triangle(a,b,c);
 
 	TriangleInfo ti = calculate_triangle_info(t);
 
-	Grid g = allocate_grid(100,20);
+	Grid g = allocate_grid(70,40);
 	initialize_grid(g, 0);
 
 	iterate_grid(g, g.grid_memory[cell_index] = membership_test(igp,ti));
