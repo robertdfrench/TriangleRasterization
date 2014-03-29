@@ -190,12 +190,21 @@ Membership membership_test(GridPoint gp, TriangleInfo ti) {
 	return T_EXTERIOR;
 }
 
+void print_grid_header(Grid g) {
+	printf("+");
+	int bi;
+	for(bi = 0; bi < g.dimY; bi++) printf("-");
+	printf("+\n");
+}
+
 void print_grid(Grid g) {
+	print_grid_header(g);
 	iterate_grid_rows(g, 
 		printf("%s",(g.grid_memory[cell_index] == 0) ? "*" : " "),
 		printf("|"),
 		printf("|\n")
 	);
+	print_grid_header(g);
 }
 
 int main(int argc, char **argv) {
