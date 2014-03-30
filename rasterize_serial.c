@@ -17,6 +17,13 @@ typedef struct line {
 	float b;
 } Line;
 
+typedef struct pixel {
+	unsigned char red;
+	unsigned char blue;
+	unsigned char green;
+	unsigned char alpha;
+} Pixel;
+
 typedef enum {O_ABOVE, O_BELOW} Orientation;
 
 typedef struct triangle_info {
@@ -80,20 +87,20 @@ typedef struct grid_point {
 } GridPoint;
 
 typedef struct grid {
-	int dimX;
-	int dimY;
-	int* grid_memory;
+	unsigned dimX;
+	unsigned dimY;
+	unsigned char* grid_memory;
 } Grid;
 
-Grid allocate_grid(int dimX, int dimY) {
+Grid allocate_grid(unsigned dimX, unsigned dimY) {
 	Grid g;
 	g.dimX = dimX;
 	g.dimY = dimY;
-	g.grid_memory = (int*)malloc(sizeof(int) * dimX * dimY);
+	g.grid_memory = (unsigned char*)malloc(sizeof(unsigned char) * dimX * dimY * 4);
 	return g;
 }
 
-#define calculate_cell_index(grid, grid_point) grid_point.j * grid.dimX + grid_point.i;
+#define calculate_cell_index(grid, grid_point) (grid_point.j * grid.dimX + grid_point.i) * 4;
 #define iterate_grid(g,expr) do {\
 	GridPoint igp;\
 	for(igp.i = 0; igp.i < g.dimX; igp.i++) {\
@@ -116,8 +123,13 @@ Grid allocate_grid(int dimX, int dimY) {
 	}\
 } while(0);
 
-void initialize_grid(Grid g, int iv) {
-	iterate_grid(g, g.grid_memory[cell_index] = iv);
+void initialize_grid(Grid g, Pixel p) {
+	iterate_grid(g, 
+		g.grid_memory[cell_index] = p.red;
+		g.grid_memory[cell_index + 1] = p.blue;
+		g.grid_memory[cell_index + 2] = p.green;
+		g.grid_memory[cell_index + 3] = p.alpha;
+	);
 }
 
 GridPoint snap_point_to_grid(Point p, Grid g) {
@@ -176,10 +188,13 @@ BoundingBoxInfo calculate_bounding_box_info(BoundingBox bb) {
 	return bbi;
 }
 
-typedef enum {T_INTERIOR, T_EXTERIOR} Membership;
+#define BLUE 256*255 + 255
+#define GREEN 256*256*255 + 255
+
+typedef enum {M_INTERIOR, M_EXTERIOR} Membership;
 
 int num_members = 0;
-Membership membership_test(GridPoint gp, TriangleInfo ti) {
+int membership_test(GridPoint gp, TriangleInfo ti) {
 	Point p;
 	p.x = gp.i;
 	p.y = gp.j;
@@ -189,9 +204,9 @@ Membership membership_test(GridPoint gp, TriangleInfo ti) {
 		calculate_line_orientation(ti.lines[2],p) == ti.orientations[2] 
 	  ) {
 		num_members++;
-		return T_INTERIOR;
+		return M_INTERIOR;
 	}
-	return T_EXTERIOR;
+	return M_INTERIOR;
 }
 
 void print_grid_header(Grid g) {
@@ -211,21 +226,56 @@ void print_grid(Grid g) {
 	print_grid_header(g);
 }
 
+void save_grid_to_png(char* filename, Grid g) {
+	lodepng_encode32_file(filename, g.grid_memory, g.dimX, g.dimY);
+}
+
+void copy_pixel(Grid g, int cell_index, Pixel p) {
+	g.grid_memory[cell_index] = p.red;
+	g.grid_memory[cell_index + 1] = p.blue;
+	g.grid_memory[cell_index + 2] = p.green;
+	g.grid_memory[cell_index + 3] = p.alpha;
+}
+
 int main(int argc, char **argv) {
 	
 	Point a = create_point(1.02,2.11);
-	Point b = create_point(64.28,28.79);
-	Point c = create_point(51.63,38.99);
+	Point b = create_point(340.28,280.79);
+	Point c = create_point(510.63,380.99);
 
 	Triangle t = create_triangle(a,b,c);
 
 	TriangleInfo ti = calculate_triangle_info(t);
 
-	Grid g = allocate_grid(70,40);
-	initialize_grid(g, 0);
+//	Grid g = allocate_grid(70,40);
+//	initialize_grid(g, 0);
 
-	iterate_grid(g, g.grid_memory[cell_index] = membership_test(igp,ti));
-	print_grid(g);
+	// Load Phoebe from disk
+	unsigned char* grid_memory;
+	unsigned dimX;
+	unsigned dimY;
+	printf("Importing Phoebe.png\n");
+	lodepng_decode32_file(&grid_memory, &dimX, &dimY, "Phoebe.png");
+
+	// Set up grid for to paint
+	Grid g;
+	g.grid_memory = grid_memory;
+	g.dimX = dimX;
+	g.dimY = dimY;
+
+	Pixel blue;
+	blue.red = 0;
+	blue.green = 0;
+	blue.blue = 255;
+	blue.alpha = 100;
+	// Paint and save
+	printf("Painting Triangle\n");
+	iterate_grid(g, 
+		if(membership_test(igp,ti) == M_INTERIOR) copy_pixel(g, cell_index, blue)
+	);
+
+	printf("Saving triangle.png\n");
+	save_grid_to_png("triangle.png",g);
 	printf("Total number of members: %d\n",num_members);
 	return 0;
 }
