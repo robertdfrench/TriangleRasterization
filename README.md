@@ -67,3 +67,6 @@ Given a triangle `T` with vertices `T.a`, `T.b`, and `T.c`, goal is to identify 
 +----------------------------------------------------------------------+
 ```
 
+### Acknowledgements
+
+PNG support is made possible by Lode Vandevenne's excellent [LodePNG](https://lodev.org/lodepng/).
