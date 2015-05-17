@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "lodepng.h"
+
 typedef struct point {
 	float x;
 	float y;
@@ -206,7 +208,7 @@ int membership_test(GridPoint gp, TriangleInfo ti) {
 		num_members++;
 		return M_INTERIOR;
 	}
-	return M_INTERIOR;
+	return M_EXTERIOR;
 }
 
 void print_grid_header(Grid g) {
@@ -227,7 +229,8 @@ void print_grid(Grid g) {
 }
 
 void save_grid_to_png(char* filename, Grid g) {
-	lodepng_encode32_file(filename, g.grid_memory, g.dimX, g.dimY);
+	unsigned error = lodepng_encode32_file(filename, g.grid_memory, g.dimX, g.dimY);
+  if (error) printf("error %u occured while saving: %s\n", error, lodepng_error_text(error));
 }
 
 void copy_pixel(Grid g, int cell_index, Pixel p) {
@@ -240,8 +243,8 @@ void copy_pixel(Grid g, int cell_index, Pixel p) {
 int main(int argc, char **argv) {
 	
 	Point a = create_point(1.02,2.11);
-	Point b = create_point(340.28,280.79);
-	Point c = create_point(510.63,380.99);
+	Point b = create_point(240.28,380.79);
+	Point c = create_point(610.63,280.99);
 
 	Triangle t = create_triangle(a,b,c);
 
@@ -254,8 +257,10 @@ int main(int argc, char **argv) {
 	unsigned char* grid_memory;
 	unsigned dimX;
 	unsigned dimY;
-	printf("Importing Phoebe.png\n");
-	lodepng_decode32_file(&grid_memory, &dimX, &dimY, "Phoebe.png");
+	printf("Importing Phoebe.png: ");
+	unsigned error = lodepng_decode32_file(&grid_memory, &dimX, &dimY, "Phoebe.png");
+  if(error) printf("error %u occured while importing\n", error);
+  printf("(%dx%d) pixels\n",dimX,dimY);
 
 	// Set up grid for to paint
 	Grid g;
