@@ -235,8 +235,8 @@ void save_grid_to_png(char* filename, Grid g) {
 
 void copy_pixel(Grid g, int cell_index, Pixel p) {
 	g.grid_memory[cell_index] = p.red;
-	g.grid_memory[cell_index + 1] = p.blue;
-	g.grid_memory[cell_index + 2] = p.green;
+	g.grid_memory[cell_index + 1] = p.green;
+	g.grid_memory[cell_index + 2] = p.blue;
 	g.grid_memory[cell_index + 3] = p.alpha;
 }
 
