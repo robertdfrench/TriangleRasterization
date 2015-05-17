@@ -235,9 +235,9 @@ void save_grid_to_png(char* filename, Grid g) {
 
 void copy_pixel(Grid g, int cell_index, Pixel p) {
   float alpha = p.alpha / 255.0;
-	g.grid_memory[cell_index + 0] = p.red   + g.grid_memory[cell_index + 0] * (1.0 - alpha);
-	g.grid_memory[cell_index + 1] = p.green + g.grid_memory[cell_index + 1] * (1.0 - alpha);
-	g.grid_memory[cell_index + 2] = p.blue  + g.grid_memory[cell_index + 2] * (1.0 - alpha);
+	g.grid_memory[cell_index + 0] = p.red   * alpha + g.grid_memory[cell_index + 0] * (1.0 - alpha);
+	g.grid_memory[cell_index + 1] = p.green * alpha + g.grid_memory[cell_index + 1] * (1.0 - alpha);
+	g.grid_memory[cell_index + 2] = p.blue  * alpha + g.grid_memory[cell_index + 2] * (1.0 - alpha);
 }
 
 int main(int argc, char **argv) {
@@ -274,13 +274,13 @@ int main(int argc, char **argv) {
 	blue.blue = 255;
 	blue.alpha = 100;
 	// Paint and save
-	printf("Painting Triangle\n");
+	printf("Painting Triangle: ");
 	iterate_grid(g, 
 		if(membership_test(igp,ti) == M_INTERIOR) copy_pixel(g, cell_index, blue)
 	);
+	printf("%d members\n",num_members);
 
 	printf("Saving triangle.png\n");
 	save_grid_to_png("triangle.png",g);
-	printf("Total number of members: %d\n",num_members);
 	return 0;
 }
